@@ -1,80 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>SKU Demo</title>
+    <title>SKU Demo</title>
 
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <script src="https://unpkg.com/vue-qrcode-reader@5/dist/vue-qrcode-reader.umd.js"></script>
-</head>
-<body>
-	<div id="app">
-    <h1>SKU Demo</h1>
-    <h2>Proof of concept QR Code Reader web app</h2>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/vue-qrcode-reader@5/dist/vue-qrcode-reader.umd.js"></script>
+    <style>
+      p {
+        font-size: 2rem;
+      }
 
-    <p style="color: red">{{ error }}</p>
+      h1 {
+        font-weight: 700 !important;
+      }
 
-    <p>Last result: <b>{{ result }}</b></p>
+      body {
+        font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+          Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
+          'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+          'Noto Color Emoji';
+        background-color: #212529;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <h1>SKU Demo</h1>
 
-    <div style="border: 2px solid black">
-  		<qrcode-stream :track="paintBoundingBox" @detect="onDetect" @error="onError"></qrcode-stream>
+      <p style="color: red">{{ error }}</p>
+
+      <p>Last result: <b>{{ result }}</b></p>
+
+      <div style="border: 2px solid black">
+        <qrcode-stream
+          :track="paintBoundingBox"
+          @detect="onDetect"
+          @error="onError"
+        ></qrcode-stream>
+      </div>
     </div>
-	</div>
-</body>
-<script>
-  const { createApp, ref } = Vue
+  </body>
+  <script>
+    const { createApp, ref } = Vue;
 
-  const result = ref('')
-  const error = ref('')
+    const result = ref('');
+    const error = ref('');
 
-  function paintBoundingBox(detectedCodes, ctx) {
-    for (const detectedCode of detectedCodes) {
-      const {
-        boundingBox: { x, y, width, height }
-      } = detectedCode
+    function paintBoundingBox(detectedCodes, ctx) {
+      for (const detectedCode of detectedCodes) {
+        const {
+          boundingBox: { x, y, width, height },
+        } = detectedCode;
 
-      ctx.lineWidth = 2
-      ctx.strokeStyle = '#007bff'
-      ctx.strokeRect(x, y, width, height)
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#007bff';
+        ctx.strokeRect(x, y, width, height);
+      }
     }
-  }
 
-  function onError(err) {
-    error.value = `[${err.name}]: `
+    function onError(err) {
+      error.value = `[${err.name}]: `;
 
-    if (err.name === 'NotAllowedError') {
-      error.value += 'you need to grant camera access permission'
-    } else if (err.name === 'NotFoundError') {
-      error.value += 'no camera on this device'
-    } else if (err.name === 'NotSupportedError') {
-      error.value += 'secure context required (HTTPS, localhost)'
-    } else if (err.name === 'NotReadableError') {
-      error.value += 'is the camera already in use?'
-    } else if (err.name === 'OverconstrainedError') {
-      error.value += 'installed cameras are not suitable'
-    } else if (err.name === 'StreamApiNotSupportedError') {
-      error.value += 'Stream API is not supported in this browser'
-    } else if (err.name === 'InsecureContextError') {
-      error.value += 'Camera access is only permitted in secure context. Use HTTPS or localhost rather than HTTP.'
-    } else {
-      error.value += err.message
+      if (err.name === 'NotAllowedError') {
+        error.value += 'you need to grant camera access permission';
+      } else if (err.name === 'NotFoundError') {
+        error.value += 'no camera on this device';
+      } else if (err.name === 'NotSupportedError') {
+        error.value += 'secure context required (HTTPS, localhost)';
+      } else if (err.name === 'NotReadableError') {
+        error.value += 'is the camera already in use?';
+      } else if (err.name === 'OverconstrainedError') {
+        error.value += 'installed cameras are not suitable';
+      } else if (err.name === 'StreamApiNotSupportedError') {
+        error.value += 'Stream API is not supported in this browser';
+      } else if (err.name === 'InsecureContextError') {
+        error.value +=
+          'Camera access is only permitted in secure context. Use HTTPS or localhost rather than HTTP.';
+      } else {
+        error.value += err.message;
+      }
     }
-  }
 
-  function onDetect(detectedCodes) {
-    result.value = JSON.stringify(
-      detectedCodes.map(code => code.rawValue)
-    )
-  }
-
-  const app = createApp({
-    setup() {
-      return { result, error, onDetect, onError, paintBoundingBox }
+    function onDetect(detectedCodes) {
+      result.value = JSON.stringify(detectedCodes.map((code) => code.rawValue));
     }
-  })
-  app.use(VueQrcodeReader)
-  app.mount('#app')
-</script>
+
+    const app = createApp({
+      setup() {
+        return { result, error, onDetect, onError, paintBoundingBox };
+      },
+    });
+    app.use(VueQrcodeReader);
+    app.mount('#app');
+  </script>
 </html>
